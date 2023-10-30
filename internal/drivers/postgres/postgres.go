@@ -5,8 +5,11 @@ import (
 	"fmt"
 	"log"
 
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
+	"github.com/arvinpaundra/go-eduworld/pkg/utils"
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/stdlib"
+	"github.com/uptrace/bun"
+	"github.com/uptrace/bun/dialect/pgdialect"
 )
 
 type Postgres struct {
@@ -23,41 +26,37 @@ func NewPostgres(postgres *Postgres) *Postgres {
 	return postgres
 }
 
-func (p *Postgres) Start(ctx context.Context) *gorm.DB {
-	dsn := fmt.Sprintf(
-		"host=%s user=%s password=%s dbname=%s port=%s sslmode=%s TimeZone=%s",
-		p.Host,
+func (p *Postgres) Start(ctx context.Context) *bun.DB {
+	uri := fmt.Sprintf(
+		"postgres://%s:%s@%s:%s/%s?sslmode=%s",
 		p.User,
 		p.Password,
-		p.Database,
+		p.Host,
 		p.Port,
+		p.Database,
 		p.SSlMode,
-		p.Timezone,
 	)
 
-	db, err := gorm.Open(postgres.Open(dsn))
-
+	config, err := pgx.ParseConfig(uri)
 	if err != nil {
-		log.Fatalf("error while connect to postgres: %e", err)
+		utils.Logger().Fatal(err)
+		return nil
 	}
+
+	sqldb := stdlib.OpenDB(*config)
+	db := bun.NewDB(sqldb, pgdialect.New())
 
 	log.Println("connected to postgres")
 
 	return db
 }
 
-func Shutdown(ctx context.Context, db *gorm.DB) error {
-	postgres, err := db.DB()
-
-	if err != nil {
-		log.Fatalf("error while getting postgres instance: %e", err)
+func Shutdown(ctx context.Context, db *bun.DB) error {
+	if err := db.DB.Close(); err != nil {
+		utils.Logger().Fatal(err)
 	}
 
-	if err := postgres.Close(); err != nil {
-		log.Fatalf("error while closing postgres connection: %e", err)
-	}
-
-	log.Println("postgres connection closed")
+	log.Println("success close postgres connection")
 
 	return nil
 }

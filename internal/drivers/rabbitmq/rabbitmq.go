@@ -25,7 +25,7 @@ func (rmq *RabbitMQ) Start(ctx context.Context) *amqp091.Connection {
 	conn, err := amqp091.Dial(connStr)
 
 	if err != nil {
-		log.Printf("error while connect to rabbitmq instance: %e", err)
+		log.Fatalf("error while connect to rabbitmq instance: %e", err)
 	}
 
 	log.Println("connected to rabbitmq instance")
@@ -35,7 +35,7 @@ func (rmq *RabbitMQ) Start(ctx context.Context) *amqp091.Connection {
 
 func Shutdown(ctx context.Context, conn *amqp091.Connection) error {
 	if err := conn.Close(); err != nil {
-		log.Printf("error while closing rabbitmq connection: %e", err)
+		log.Fatalf("error while closing rabbitmq connection: %e", err)
 	}
 
 	log.Println("rabbitmq connection closed")
