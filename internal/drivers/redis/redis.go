@@ -7,6 +7,7 @@ import (
 	// "crypto/tls"
 	"fmt"
 
+	"github.com/arvinpaundra/go-eduworld/pkg/utils"
 	"github.com/redis/go-redis/v9"
 )
 
@@ -33,7 +34,8 @@ func (r *Redis) Start(ctx context.Context) *redis.Client {
 	})
 
 	if _, err := rdb.Ping(ctx).Result(); err != nil {
-		log.Printf("error while connect to redis: %e", err)
+		utils.Logger().Fatal(err)
+		return nil
 	}
 
 	log.Println("connected to redis")
@@ -43,10 +45,10 @@ func (r *Redis) Start(ctx context.Context) *redis.Client {
 
 func Shutdown(ctx context.Context, rc *redis.Client) error {
 	if err := rc.Close(); err != nil {
-		log.Printf("error while closing redis connection: %e", err)
+		utils.Logger().Fatal(err)
 	}
 
-	log.Println("redis connection closed")
+	log.Println("success close redis connection")
 
 	return nil
 }
