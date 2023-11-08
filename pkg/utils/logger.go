@@ -6,7 +6,8 @@ import (
 
 func Logger() *logrus.Entry {
 	logrus.SetFormatter(&logrus.JSONFormatter{
-		PrettyPrint: true,
+		TimestampFormat: "2006-02-02 15:04:05",
+		PrettyPrint:     true,
 	})
 	logrus.SetReportCaller(true)
 

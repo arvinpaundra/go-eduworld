@@ -52,6 +52,9 @@ func validationErrorMessage(validationError error) ValidationError {
 		case "max":
 			errFields[err.Field()] = fmt.Sprintf("max length %s characters", err.Param())
 			break
+		case "required_if":
+			errFields[err.Field()] = "this field is required"
+			break
 		default:
 			errFields[err.Field()] = err.Error()
 			break
